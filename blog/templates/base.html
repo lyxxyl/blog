@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/blog.css">
+    <title>文章展示</title>
+</head>
+<body>
+
+<div class="container">
+    <div class="header" class="col-md-offset-1">
+        <h3>{{ user.blog.title }}</h3>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            <div class="panel panel-primary">
+                <div class="panel-heading">文章分类</div>
+                <div class="panel-body">
+                    {% for category in count_byCategory %}
+                        <p><span>{{ category.title }}({{ category.c }})</span></p>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">标签分类</h3>
+                </div>
+                <div class="panel-body">
+                    {% for tag in count_byTag %}
+                        <p><span>{{ tag.title }}({{ tag.c }})</span></p>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">日期分类</h3>
+                </div>
+                <div class="panel-body">
+                    {% for create in count_byCreate %}
+                        <p><span>{{ create.archive_ym }}({{ create.c }})</span></p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            {% block main %}
+
+            {% endblock %}
+
+
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

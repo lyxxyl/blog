@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="http://static.geetest.com/static/tools/gt.js"></script>
+    <link rel="stylesheet" href="/static/blog.css">
+    <title>用户登录</title>
+</head>
+<body>
+<form class="form-horizontal">
+    {% csrf_token %}
+    <div class="form-group">
+        <div class="col-sm-offset-4 col-sm-10">
+            <h1>用户登录</h1>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="inputUsername3" class="col-sm-4 control-label">用户名:</label>
+        <div class="col-sm-3">
+            <input type="text" class="form-control" id="inputUsername3" placeholder="请输入用户名">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="inputPassword3" class="col-sm-4 control-label">密码:</label>
+        <div class="col-sm-3">
+            <input type="password" class="form-control" id="inputPassword3" placeholder="请输入密码">
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-4 col-sm-10">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox"> Remember me
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-4 col-sm-10">
+            <div id="popup-captcha">
+
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-4 col-sm-10">
+            <button type="button" class="btn btn-info" id="info_refer">提交</button>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-4 col-sm-10">
+            <span class="login-error"></span>
+        </div>
+    </div>
+
+</form>
+</body>
+<script>
+    var handlerPopup = function (captchaObj) {
+        // 成功的回调
+        captchaObj.onSuccess(function () {
+            var validate = captchaObj.getValidate();
+            $.ajax({
+                url: "/login/", // 进行二次验证
+                type: "post",   //提交方式
+                dataType: "json",   //数据类型
+                data: {
+                    username: $('#inputUsername3').val(),
+                    password: $('#inputPassword3').val(),
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
+                    geetest_challenge: validate.geetest_challenge,
+                    geetest_validate: validate.geetest_validate,
+                    geetest_seccode: validate.geetest_seccode
+                },
+                success: function (data) {
+                    if (data.static) {
+                        if(data.msg.search("login"))
+                            window.location.href=data.msg;
+                        else
+                             history.go(-1);
+                    }
+                    else
+                        $(".login-error").html(data.msg)
+                }
+            });
+        });
+        //绑定点击事件
+        $("#info_refer").click(function () {
+            captchaObj.show();
+        });
+        // 将验证码加到id为captcha的元素里
+        captchaObj.appendTo("#popup-captcha");
+    };
+
+
+    // 验证开始需要向网站主后台获取id，challenge，success（是否启用failback）
+    $.ajax({
+        url: "/pc-geetest/register?t=" + (new Date()).getTime(), // 加随机数防止缓存
+        type: "get",
+        dataType: "json",
+        success: function (data) {
+            // 使用initGeetest接口
+            // 参数1：配置参数
+            // 参数2：回调，回调的第一个参数验证码对象，之后可以使用它做appendTo之类的事件
+            initGeetest({
+                gt: data.gt,
+                challenge: data.challenge,
+                product: "popup", // 产品形式，包括：float，embed，popup。注意只对PC版验证码有效
+                offline: !data.success // 表示用户后台检测极验服务器是否宕机，一般不需要关注
+            }, handlerPopup);
+        }
+    });
+</script>
+</html>

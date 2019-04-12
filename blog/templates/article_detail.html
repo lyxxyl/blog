@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% block main %}
+    {% csrf_token %}
+    <div class="article_detail">
+        <h1>{{ article.title }}</h1>
+        {{ article.articledetail.content|safe }}
+    </div>
+    <!--赞和踩的dom-->
+    <div class="clear">
+        <div id="div_digg">
+            <div class="diggit dig_count">
+                <span class="diggnum" id="digg_count">{{ article.article_up }}</span>
+            </div>
+            <div class="buryit dig_count">
+                <span class="burynum" id="bury_count">{{ article.article_down }}</span>
+            </div>
+            <div class="diggword" id="digg_tips">
+            </div>
+        </div>
+    </div>
+    <!--评论列表的动态生成-->
+    <div class="coment_list" id="coment_list">
+        <p>评论列表</p>
+        {% for comment in comment_list %}
+            <div class="comment_head">
+                <div class="feedbackListSubtitle">
+                    <div class="feedbackManage clear">&nbsp;&nbsp;<span class="comment_actions"
+                                                                        comment_name="{{ comment.user.username }}"
+                                                                        comment_id="{{ comment.pk }}">回复</span></div>
+                    <a href="#4210049" class="layer">#{{ forloop.counter }}楼</a><a name="4210049"
+                                                                                   id="comment_anchor_4210049"></a>
+                    <span class="comment_date">{{ comment.create_time }}</span> <a
+                        href="">{{ comment.user.username }}</a>{% if comment.parent_comment %}@
+                    {{ comment.parent_comment.user.username }}{% endif %}<a href="" class="sendMsg2This">&nbsp;</a>
+                </div>
+                <div class="comment" comment_id=""><span>{{ comment.content }}</span></div>
+            </div>
+        {% endfor %}
+    </div>
+    <!--根据用户是否登录显示不同的dom-->
+    {% if request.user.username %}
+        <div>
+            <p>发表评论</p>
+            <p style="font-size: 13px">
+                昵称：<input type="text" id="tbCommentAuthor" class="author" disabled="disabled" size="50"
+                          value="{{ request.user.username }}">
+            </p>
+            <p>评论内容：</p>
+            <textarea id="tbCommentBody" class="comment_textarea"></textarea>
+            <p><input id="btn_comment_submit" type="button" class="comment_btn" value="提交评论"></p>
+        </div>
+    {% else %}
+        <p><a href="/login/">评论</a></p>
+    {% endif %}
+    <script>
+        //处理点击事件，用ajax提交
+        $(".dig_count").click(function () {
+            if ("{{ request.user.username }}") {
+                //用is_up区别点击了赞还是踩
+                var is_up = $(this).hasClass("diggit");
+                var article_id ={{ article.pk }};
+                var crf = $("[name='csrfmiddlewaretoken']").val()
+                $.ajax({
+                    url: '/blog/updown/',
+                    type: 'post',
+                    data: {"is_up": is_up, "num": article_id, "csrfmiddlewaretoken": crf},
+                    success: function (data) {
+                        if (data.static) {
+                            //is_up为True时，赞数加1，否准踩数加1
+                            if (is_up) {
+                                var num = parseInt($(".diggnum").text());
+                                var num = num + 1;
+                                $(".diggnum").text(num);
+                            }
+                            else {
+                                var num = parseInt($(".burynum").text());
+                                var num = num + 1;
+                                $(".burynum").text(num);
+                            }
+                        }
+                        else {
+                            //从数据库取上一次的值判断上次的赞还是踩
+                            if (data.is_up) {
+                                $(".diggword").html("");
+
+                                $(".diggword").html("已经赞了");
+                            }
+                            else {
+                                $(".diggword").html("");
+                                $(".diggword").html("已经踩了");
+
+                            }
+                        }
+                    }
+                })
+
+            }
+            else {
+                $(".diggword").html("");
+                $(".diggword").html("请登录");
+                $(".diggword").click(function () {
+                    location.href = "/login/";
+                })
+            }
+        })
+        //parent为null时，为根评论，有值时，为当前值的子评论
+        var parent = ''
+        //点击回复按钮，修改parent的值，使评论为子评论
+        $(".coment_list").on("click", ".comment_actions", function () {
+            parent = $(this).attr("comment_id");
+            name = $(this).attr("comment_name");
+            var temp = "@" + name + "\n";
+            $(".comment_textarea").focus();
+            $(".comment_textarea").val(temp);
+        })
+        //评论ajax提交，在数据库添加数据
+        $(".comment_btn").click(function () {
+            var article_id ={{ article.pk }};
+            var conent = $(".comment_textarea").val();
+            $.ajax({
+                url: '/blog/comment/',
+                type: 'post',
+                data: {
+                    "csrfmiddlewaretoken": $("[name='csrfmiddlewaretoken']").val(),
+                    "article_id": article_id,
+                    "content": conent,
+                    "parent": parent,
+                },
+                success: function (data) {
+                    $(".comment_textarea").val("");
+                    history.go(0);
+                    parent = "";
+                }
+            })
+        })
+    </script>
+{% endblock %}

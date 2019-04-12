@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/blog.css">
+    <title>用户注册</title>
+    <style>
+
+    </style>
+</head>
+<body>
+
+<form  novalidate class="form-horizontal" action="/register/" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="{{ reg.username.id_for_label }}" class="col-sm-4 control-label">{{ reg.username.label }}</label>
+        <div class="col-sm-3">
+            {{ reg.username }}
+        </div>
+        <span id="helpBlock" class="help-block">{{ reg.errors.username.0 }}</span>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ reg.password.id_for_label }}" class="col-sm-4 control-label">{{ reg.password.label }}</label>
+        <div class="col-sm-3">
+            {{ reg.password }}
+        </div>
+         <span id="helpBlock" class="help-block">{{ reg.errors.password.0 }}</span>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ reg.repassword.id_for_label }}" class="col-sm-4 control-label">{{ reg.repassword.label }}</label>
+        <div class="col-sm-3">
+            {{ reg.repassword }}
+        </div>
+        <!--显示inform错误集中的第一个错误-->
+        <span id="helpBlock" class="help-block">{{ reg.errors.repassword.0 }}</span>
+    </div>
+    <div class="form-group">
+        <label for="{{ reg.email.id_for_label }}" class="col-sm-4 control-label">{{ reg.email.label }}</label>
+        <div class="col-sm-3">
+            {{ reg.email }}
+        </div>
+        <span id="helpBlock" class="help-block">{{ reg.errors.email.0 }}</span>
+    </div>
+    <!-- 使用label for属性的关联功能，将初始图片label与file上传框关联，在将input隐藏，
+    做到点击图片，就可以选择图片的效果-->
+    <div class="form-group">
+        <label class="col-sm-4 control-label">头像</label>
+        <div class="col-sm-7">
+            <input type="file" id="inputEmail3" name='picture'>
+            <label for="inputEmail3"><img id="picture" src="/static/1.png" ></label>
+        </div>
+    </div>
+
+    <div class="form-group">
+    <div class="col-sm-offset-4 col-sm-8">
+      <button type="submit" class="btn btn-default">提交</button>
+    </div>
+  </div>
+
+</form>
+<script>
+    <!-- 采用html5的fileReader对象实例,在页面显示图片 -->
+    $("#inputEmail3").change(function () {
+        var fileReader=new FileReader();
+        fileReader.readAsDataURL(this.files[0]);
+        fileReader.onload=function () {
+            $("#picture").attr("src",fileReader.result);
+        };
+
+    })
+</script>
+
+</body>
+</html>

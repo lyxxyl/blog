@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/blog.css">
+    <title>blog主页面</title>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">The blog</a>
+        </div>
+
+        <!--导航栏上的其他功能并未完全实践，只实现了登录，注册，注销-->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>
+                <li><a href="#">Link</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <!--根据是否登录，显示不一样的dom-->
+                {% if request.user.username %}
+                    <li><a href="#">{{ request.user.username }}</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                           aria-expanded="false">个人中心<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/blog/article_add/">写博客</a></li>
+                            <li><a href="#">Another action</a></li>
+                            <li><a href="#">Something else here</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="/logout/">注销</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li><a href="/login/">登录</a></li>
+                    <li><a href="/register/">注册</a></li>
+                {% endif %}
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<div class="container">
+    <div class="row">
+        <div class="col-md-2">
+            <!--左右两块span存放广告，新闻等信息，现在用数据代替-->
+            <div class="panel panel-primary">
+                <div class="panel-heading">Panel heading without title</div>
+                <div class="panel-body">
+                    Panel content
+                </div>
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Panel title</h3>
+                </div>
+                <div class="panel-body">
+                    Panel content
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+
+            <div class="article_list">
+                {% for article in article_list %}
+                    <div class="article">
+                        <a href="/blog/{{ article.user.username }}"><h3>{{ article.title }}</h3></a>
+                        <div class="media">
+                            <div class="media-left media-middle">
+                                <a href="#">
+                                    <img class="media-object"
+                                         src="/media/{{ article.user.avatar }}" alt="...">
+                                </a>
+                            </div>
+                            <div class="media-body">
+                                <p>{{ article.desc }}</p>
+                            </div>
+                        </div>
+                        <div class="info_show">
+                            <span><a href="/blog/{{ article.user.username }}">{{ article.user.username }}</a> </span>发布与
+                            <span>{{ article.create_time|date:'Y-m-d H:i:s' }}</span>
+                            <!--article通过_set实现对comment的跨表查询-->
+                            <span class="glyphicon glyphicon-comment">评论（{{ article.comment_set.count }}）</span>
+                            <span class="glyphicon glyphicon-thumbs-up">点赞（{{ article.article_up }}）</span>
+                        </div>
+
+
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Panel heading without title</div>
+                <div class="panel-body">
+                    Panel content
+                </div>
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Panel title</h3>
+                </div>
+                <div class="panel-body">
+                    Panel content
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{% extends "base.html" %}   <!--使用extends页面继承，将重复使用的dom放入base中-->
+{% block main %}
+    <div class="article_list">
+        {% for article in article_list %}
+            <div class="article">
+                <a href="/blog/article/{{ article.nid }}/{{ article.user.username }}/">{{ article.title }}</a>
+                <div class="media">
+                    <div class="media-left media-middle">
+                        <a href="#">
+                            <img class="media-object"
+                                 src="/media/{{ article.user.avatar }}" alt="...">
+                        </a>
+                    </div>
+                    <div class="media-body">
+                        <p>{{ article.desc }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
